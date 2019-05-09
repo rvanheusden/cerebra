@@ -28,9 +28,9 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_all/"):
+	for file in os.listdir(cwd + "filteredOut_tumorExome/"):
 		if file.endswith(".vcf"):
-			fullPath = cwd + 'scVCF_filtered_all/' + file 
+			fullPath = cwd + 'filteredOut_tumorExome/' + file 
 			files.append(fullPath)
     
 	return files
@@ -134,8 +134,8 @@ def hit_search_coords(sample, *args):
 def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 	""" creates dict with genome coords for hits to specific GOI """
 	print('getting coords to GOI hits')
-
 	global queryChrom, lPosQuery, rPosQuery # dont like this
+
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 	cells_dict_GOI_coords = {}
 	queryChrom = chrom
@@ -144,8 +144,8 @@ def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 
 	for f in fileNames:
 		numMatches = 0
-		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
-		cell = cell.replace(".vcf", "")	
+		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/filteredOut_tumorExome/", "")
+		cell = cell.replace("_unique.vcf", "")	
 	
 		df = VCF.dataframe(f)
 		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
@@ -284,7 +284,7 @@ def write_csv(dictObj, outFile):
  
 
 
-def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
+def get_specific_mutations_tumor_exome(test, chrom, start, end, outprefix, wrkdir):
 	""" for a specific gene of interest, get the complete set of amino acid level mutations
 		for each cell in dataset """
 	global database
