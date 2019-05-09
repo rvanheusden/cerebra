@@ -89,56 +89,34 @@ def write_vcf(df, outStr_):
 
 
 
-def get_patient_cells_list(scVCF_list_, patientID):
-	""" get the list of cell names from a given patient """
-	currPatient_cells_ = []
-
-	for item in scVCF_list_:
-		currCell = item.strip('.vcf')
-		currPlate = currCell.split('_')[1]
-		rowToKeep = patientMetadata['plate'] == currPlate
-    
-		try:
-			currPatient = patientMetadata['patient_id'][rowToKeep]
-			index = currPatient.index[0]
-			currPatientVal = currPatient[index]
-			if currPatientVal == patientID:
-				currPatient_cells_.append(currCell)
-		except:
-			continue
-	print('numCells: %d' % len(currPatient_cells_))
-	return currPatient_cells_
-
-
-
-def get_unique_vcf_entries(patient, cell):
+def get_unique_vcf_entries(patient):
 	""" do the germline filter, and return a dataframe with only the 
-		UNIQUE entries for a given cell """
-	patientPATH = cwd + 'bulkVCF/' + patient
-	cellPATH = cwd + 'scVCF/' + cell + '.vcf'
+		UNIQUE entries for a given patient """
+	germlinePATH = cwd + 'bulkVCF/' + patient + 
+	tumorExomePATH = cwd + 'tumorExome/' + patient + '.vcf'
 	
 	try:
-		patient_df = VCF.dataframe(patientPATH)
-		cell_df = VCF.dataframe(cellPATH)
+		germline_df = VCF.dataframe(germlinePATH)
+		tumorExome_df = VCF.dataframe(tumorExomePATH)
 	except FileNotFoundError:
-		print('FILE NOT FOUND: %s' % cellPATH)
+		print('FILE NOT FOUND: %s' % germlinePATH)
 		return
     
-	patient_df_trimmed = patient_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
-	cell_df_trimmed = cell_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
+	germline_df_trimmed = germline_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
+	tumorExome_df_trimmed = tumorExome_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
     
 	# get whats SHARED between patient and cell 
-	patient_cell_concat = pd.concat([patient_df_trimmed, cell_df_trimmed])
-	rowsToKeep = patient_cell_concat.duplicated()
-	patient_cell_shared = patient_cell_concat[rowsToKeep]
-	patient_cell_shared = patient_cell_shared.reset_index(drop=True)
+	germline_tumorExome_concat = pd.concat([germline_df_trimmed, tumorExome_df_trimmed])
+	rowsToKeep = germline_tumorExome_concat.duplicated()
+	germline_tumorExome_shared = germline_tumorExome_concat[rowsToKeep]
+	germline_tumorExome_shared = germline_tumorExome_shared.reset_index(drop=True)
 
 	# now go back to the original cell df, pull out whats UNIQUE 
-	cell_cell_concat = pd.concat([cell_df_trimmed, patient_cell_shared])
-	cell_cell_concat_noDups = cell_cell_concat.drop_duplicates(keep=False)
-	cell_cell_concat_noDups = cell_cell_concat_noDups.reset_index(drop=True)
+	tumorExome_tumorExome_concat = pd.concat([tumorExome_df_trimmed, germline_tumorExome_shared])
+	tumorExome_tumorExome_concat_noDups = tumorExome_tumorExome_concat.drop_duplicates(keep=False)
+	tumorExome_tumorExome_concat_noDups = tumorExome_tumorExome_concat_noDups.reset_index(drop=True)
     
-	return(cell_cell_concat_noDups)
+	return(tumorExome_tumorExome_concat_noDups)
 
 
 
@@ -149,9 +127,9 @@ def get_unique_vcf_entries(patient, cell):
 
 
 
-def germline_filter(test, wrkdir):
-	""" given a set of single-cell vcfs and bulk-seq vcfs (peripheral blood), this
-		program subtracts out the mutations common to sc- and bulkVCF. """
+def germline_filter_tumor_exome(test, wrkdir):
+	""" given a set of tumor exome (bulk) vcfs and bulk peripheral blood vcfs, this
+		program subtracts out the mutations common to tumor exome and bulkVCF. """
 	global patientMetadata
 	global cwd
 
@@ -161,8 +139,8 @@ def germline_filter(test, wrkdir):
 	patientMetadata = pd.read_csv(cwd + 'metadata_all_cells_4.10.19.csv')
 
 	# get a list of all the single-cell VCF files
-	vcfDir = cwd + 'scVCF/'
-	scVCF_list = os.listdir(vcfDir)
+	vcfDir = cwd + 'tumorExome/'
+	tumorExome_list = os.listdir(vcfDir)
 
 	# get list of bulk VCF files
 	bulkVCF_dir = cwd + 'bulkVCF/'
@@ -186,14 +164,11 @@ def germline_filter(test, wrkdir):
 			suffix2 = ''
 	
 		if suffix2 != '' and currPatient not in patientsRun:
-			print('WHOLE BLOOD FOUND, for %s' % currPatient)
-			currPatient_cells = get_patient_cells_list(scVCF_list, currPatient)
+			print('TUMOR EXOME FOUND, for %s' % currPatient)
 
-			# inner loop -- by CELL 
-			for currCell in currPatient_cells:
-				currCell_unique = get_unique_vcf_entries(item, currCell)
-				outStr = cwd + 'filteredOut/' + currCell + '_unique.vcf'
-				write_vcf(currCell_unique, outStr)
+			tumorExome_unique = get_unique_vcf_entries(currPatient)
+			outStr = cwd + 'filteredOut/' + currPatient + '_unique.vcf'
+			write_vcf(tumorExome_unique, outStr)
 			
 			patientsRun.append(currPatient)
 
