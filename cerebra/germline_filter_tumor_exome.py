@@ -155,11 +155,11 @@ def germline_filter_tumor_exome(test, wrkdir):
 
 	# outer loop -- by GERMLINE sample
 	for item in bulkVCF_list:
-		currSample = item.strip('.vcf')
-		currPatient_outer = currSample.split('_')[0]
-		suffix1 = currSample.split('_')[1]
+		currSample_outer = item.strip('.vcf')
+		currPatient_outer = currSample_outer.split('_')[0]
+		suffix1 = currSample_outer.split('_')[1]
 		try:
-			suffix2 = currSample.split('_')[2]
+			suffix2 = currSample_outer.split('_')[2]
 		except IndexError:
 			suffix2 = ''
 	
@@ -169,10 +169,11 @@ def germline_filter_tumor_exome(test, wrkdir):
 			# inner loop -- by TUMOR EXOME sample
 			for sample in tumorExome_list:
 				currPatient_inner = sample.split('_')[0]
-				
+				currSample_inner = sample.split('_')[1]
+
 				if currPatient_inner == currPatient_outer:
 					tumorExome_unique = get_unique_vcf_entries(item, sample)
-					outStr = cwd + 'filteredOut_tumorExome/' + currPatient_inner + '_unique.vcf'
+					outStr = cwd + 'filteredOut_tumorExome/' + currPatient_inner + '_'+ currSample_inner + '_unique.vcf'
 					write_vcf(tumorExome_unique, outStr)
 			
 					patientsRun.append(currPatient_inner)
