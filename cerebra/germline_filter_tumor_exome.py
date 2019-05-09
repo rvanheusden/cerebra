@@ -89,41 +89,41 @@ def write_vcf(df, outStr_):
 
 
 
-def get_unique_vcf_entries(patient):
+def get_unique_vcf_entries(germlineFile, tumorExomeFile):
 	""" do the germline filter, and return a dataframe with only the 
 		UNIQUE entries for a given patient """
-	germlinePATH = cwd + 'bulkVCF/' + patient + 
-	tumorExomePATH = cwd + 'tumorExome/' + patient + '.vcf'
+	germlinePATH = cwd + 'bulkVCF/' + germlineFile
+	tumorExomePATH = cwd + 'tumorExome/' + tumorExomeFile
 	
 	try:
 		germline_df = VCF.dataframe(germlinePATH)
 		tumorExome_df = VCF.dataframe(tumorExomePATH)
 	except FileNotFoundError:
-		print('FILE NOT FOUND: %s' % germlinePATH)
+		print('FILE NOT FOUND: %s' % tumorExomePATH)
 		return
     
 	germline_df_trimmed = germline_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
 	tumorExome_df_trimmed = tumorExome_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
     
-	# get whats SHARED between patient and cell 
+	# get whats SHARED between germline and tumorExome 
 	germline_tumorExome_concat = pd.concat([germline_df_trimmed, tumorExome_df_trimmed])
 	rowsToKeep = germline_tumorExome_concat.duplicated()
 	germline_tumorExome_shared = germline_tumorExome_concat[rowsToKeep]
 	germline_tumorExome_shared = germline_tumorExome_shared.reset_index(drop=True)
 
-	# now go back to the original cell df, pull out whats UNIQUE 
-	tumorExome_tumorExome_concat = pd.concat([tumorExome_df_trimmed, germline_tumorExome_shared])
-	tumorExome_tumorExome_concat_noDups = tumorExome_tumorExome_concat.drop_duplicates(keep=False)
-	tumorExome_tumorExome_concat_noDups = tumorExome_tumorExome_concat_noDups.reset_index(drop=True)
+	# now go back to the original tumorExome df, pull out whats UNIQUE 
+	concat = pd.concat([tumorExome_df_trimmed, germline_tumorExome_shared])
+	concat_noDups = concat.drop_duplicates(keep=False)
+	concat_noDups = concat_noDups.reset_index(drop=True)
     
-	return(tumorExome_tumorExome_concat_noDups)
+	return(concat_noDups)
 
 
 
 """ launch """
 @click.command()
 @click.option('--test', default = False)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
 
 
 
@@ -139,8 +139,8 @@ def germline_filter_tumor_exome(test, wrkdir):
 	patientMetadata = pd.read_csv(cwd + 'metadata_all_cells_4.10.19.csv')
 
 	# get a list of all the single-cell VCF files
-	vcfDir = cwd + 'tumorExome/'
-	tumorExome_list = os.listdir(vcfDir)
+	tumorExomeDir = cwd + 'tumorExome/'
+	tumorExome_list = os.listdir(tumorExomeDir)
 
 	# get list of bulk VCF files
 	bulkVCF_dir = cwd + 'bulkVCF/'
@@ -148,32 +148,37 @@ def germline_filter_tumor_exome(test, wrkdir):
 
 	patientsRun = []
 
-	cmd1 = 'sudo mkdir -p ' + cwd + 'filteredOut'
-	cmd2 = 'sudo chmod -R 777 ' + cwd + 'filteredOut/' 
+	cmd1 = 'sudo mkdir -p ' + cwd + 'filteredOut_tumorExome'
+	cmd2 = 'sudo chmod -R 777 ' + cwd + 'filteredOut_tumorExome/' 
 	os.system(cmd1)
 	os.system(cmd2)
 
-	# outer loop -- by PATIENT
+	# outer loop -- by GERMLINE sample
 	for item in bulkVCF_list:
 		currSample = item.strip('.vcf')
-		currPatient = currSample.split('_')[0]
+		currPatient_outer = currSample.split('_')[0]
 		suffix1 = currSample.split('_')[1]
 		try:
 			suffix2 = currSample.split('_')[2]
 		except IndexError:
 			suffix2 = ''
 	
-		if suffix2 != '' and currPatient not in patientsRun:
-			print('TUMOR EXOME FOUND, for %s' % currPatient)
+		if suffix2 != '' and currPatient_outer not in patientsRun:
+			print('PERIPHERAL BLOOD FOUND, for %s' % currPatient_outer)
 
-			tumorExome_unique = get_unique_vcf_entries(currPatient)
-			outStr = cwd + 'filteredOut/' + currPatient + '_unique.vcf'
-			write_vcf(tumorExome_unique, outStr)
+			# inner loop -- by TUMOR EXOME sample
+			for sample in tumorExome_list:
+				currPatient_inner = sample.split('_')[0]
+				
+				if currPatient_inner == currPatient_outer:
+					tumorExome_unique = get_unique_vcf_entries(item, sample)
+					outStr = cwd + 'filteredOut_tumorExome/' + currPatient_inner + '_unique.vcf'
+					write_vcf(tumorExome_unique, outStr)
 			
-			patientsRun.append(currPatient)
+					patientsRun.append(currPatient_inner)
 
 	if test:
-		cmd = 'cp -r ' + cwd + 'filteredOut/ ' + cwd + 'test/germline_filter/' 
+		cmd = 'cp -r ' + cwd + 'filteredOut_tumorExome/ ' + cwd + 'test/germline_filter/' 
 		os.system(cmd)
 	else:
 		create_final_outdir()
