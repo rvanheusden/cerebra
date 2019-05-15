@@ -29,8 +29,8 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names based on specified path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_all/"):
-		PATH = cwd + 'scVCF_filtered_all/' + file
+	for file in os.listdir(cwd + "tumorExome_vcf/"):
+		PATH = cwd + 'tumorExome_vcf/' + file
 		files.append(PATH)
 
 	return files
@@ -172,7 +172,7 @@ def format_dataframe(raw_df):
 
 
 
-def get_mutationcounts_table(nthread, test, wrkdir):
+def get_mutationcounts_table_tumor_exome(nthread, test, wrkdir):
 	""" generate a cell x gene mutation counts table from a set of germline filtered vcfs """
 	global database
 	global database_laud

@@ -9,7 +9,7 @@ import click
 from cerebra.hello import hello
 from cerebra.datadump import s3_import
 from cerebra.germline_filter_tumor_exome import germline_filter_tumor_exome
-from cerebra.get_mutationcounts_table import get_mutationcounts_table
+from cerebra.get_mutationcounts_table_tumor_exome import get_mutationcounts_table_tumor_exome
 from cerebra.get_specific_mutations_tumor_exome import get_specific_mutations_tumor_exome
 from cerebra.get_mutationalburden import get_mutationalburden
 from cerebra.generate_summary_tables import generate_summary_tables
@@ -32,7 +32,7 @@ def cli():
 cli.add_command(hello, name='hello')
 cli.add_command(s3_import, name='s3_import')
 cli.add_command(germline_filter_tumor_exome, name='germline_filter_tumor_exome')
-cli.add_command(get_mutationcounts_table, name='get_mutationcounts_table')
+cli.add_command(get_mutationcounts_table_tumor_exome, name='get_mutationcounts_table_tumor_exome')
 cli.add_command(get_specific_mutations_tumor_exome, name='get_specific_mutations_tumor_exome')
 cli.add_command(get_mutationalburden, name='get_mutationalburden')
 cli.add_command(generate_summary_tables, name='generate_summary_tables')
