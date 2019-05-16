@@ -112,7 +112,7 @@ def get_genecell_mut_counts(f):
 	tup = [] 
 
 	cell = f.replace(cwd, "")
-	cell = cell.replace('scVCF_filtered_all/', "")
+	cell = cell.replace('tumorExome_vcf/', "")
 	cell = cell.replace(".vcf", "")
 	
 	df = VCF.dataframe(f)
@@ -244,7 +244,7 @@ def get_mutationcounts_table_tumor_exome(nthread, test, wrkdir):
 	if test_bool:
 		intermediate.to_csv(cwd + "test/mutationcounts_table/geneCellMutationCounts_artifical.csv", index=False)	
 	else:
-		intermediate.to_csv(cwd + "geneCellMutationCounts.csv", index=False)
+		intermediate.to_csv(cwd + "geneCellMutationCounts_tumorExome.csv", index=False)
 
 	cmd = 'rm ' + cwd + 'intermediate.csv'
 	os.system(cmd)
