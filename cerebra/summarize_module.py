@@ -120,6 +120,8 @@ def translated_muts_fill_in_fusions(summaryTable_):
                 
                 summaryTable_['mutations_found_translated'][i] = currMuts
 
+
+
 def convert_to_string(summaryTable_):
 	""" converting mutations_found_translated col from list to str. """
 	for i in range(0,len(summaryTable_.index)):
