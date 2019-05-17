@@ -172,7 +172,7 @@ def format_dataframe(raw_df):
 
 
 
-def get_mutationcounts_table_tumor_exome(nthread, test, wrkdir):
+def get_mutationcounts_table_TE(nthread, test, wrkdir):
 	""" generate a cell x gene mutation counts table from a set of germline filtered vcfs """
 	global database
 	global database_laud

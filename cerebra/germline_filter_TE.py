@@ -127,7 +127,7 @@ def get_unique_vcf_entries(germlineFile, tumorExomeFile):
 
 
 
-def germline_filter_tumor_exome(test, wrkdir):
+def germline_filter_TE(test, wrkdir):
 	""" given a set of tumor exome (bulk) vcfs and bulk peripheral blood vcfs, this
 		program subtracts out the mutations common to tumor exome and bulkVCF. """
 	global patientMetadata

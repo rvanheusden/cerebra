@@ -284,7 +284,7 @@ def write_csv(dictObj, outFile):
  
 
 
-def get_specific_mutations_tumor_exome(test, chrom, start, end, outprefix, wrkdir):
+def get_specific_mutations_TE(test, chrom, start, end, outprefix, wrkdir):
 	""" for a specific gene of interest, get the complete set of amino acid level mutations
 		for each cell in dataset """
 	global database

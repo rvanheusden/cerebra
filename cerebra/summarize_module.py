@@ -1,4 +1,5 @@
-""" module of functions that allow you to create per-cell / per-sample summary tables """
+""" module of functions that allow you to create per-cell / per-sample summary tables
+	configuring for tumor exome samples, here """
 
 import numpy as np
 import math
