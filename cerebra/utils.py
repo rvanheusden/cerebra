@@ -132,7 +132,9 @@ class GenomeIntervalTree():
 		if not tree:
 			return False
 
-		return tree.has_overlap(genome_pos.start, genome_pos.end)
+		# has_overlap exists, but it is not vectorized. NCLS's vectorized
+		# operations such as first_overlap_both are much faster.
+		return bool(tree.first_overlap_both(genome_pos.start, genome_pos.end))
 
 	def get_first_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
