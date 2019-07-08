@@ -60,7 +60,7 @@ class GenomeIntervalTree():
 
 			if genome_pos is None:
 				continue
-			
+
 			chrom = genome_pos.chrom
 
 			if not chrom in working_tree_map:
@@ -189,7 +189,6 @@ class GenomeIntervalTree():
 		return self.records[record_ids[0]]
 
 	def get_best_containment(self, genome_pos):
-
 		tree = self.tree_map.get(genome_pos.chrom)
 
 		if not tree:
