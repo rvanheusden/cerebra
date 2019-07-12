@@ -32,8 +32,8 @@ def cli():
 
 cli.add_command(hello, name='hello')
 cli.add_command(s3_import, name='s3_import')
-cli.add_command(germline_filter, name='germline_filter')
-# cli.add_command(get_mutationcounts_table, name='get_mutationcounts_table')
+cli.add_command(germline_filter, name='germline-filter')
+cli.add_command(count_mutations, name="count-mutations")
 cli.add_command(get_specific_mutations, name='get_specific_mutations')
 cli.add_command(get_mutationalburden, name='get_mutationalburden')
 cli.add_command(generate_summary_tables, name='generate_summary_tables')
@@ -41,8 +41,6 @@ cli.add_command(generate_summary_tables_test, name='generate_summary_tables_test
 cli.add_command(fusion_search, name='fusion_search')
 cli.add_command(fusions_x_cell, name='fusions_x_cell')
 cli.add_command(check_coverage, name='check_coverage')
-
-cli.add_command(count_mutations, name="count-mutations")
 
 if __name__ == "__main__":
     cli()
